@@ -351,5 +351,18 @@
           AND UseYN    = #{UseYN}
           </if>
     </delete>
+    
+    
+    <select id="getArticleImage" parameterType="int" resultType="ModelArticleImage">
+        SELECT articleno, boardcd, title, content, email, hit, regdate,fileName,imageBase64
+        FROM TB_BBS_ArticleImage
+        WHERE articleno = #{articleno}
+    </select>
+    
+    <insert id="insertArticleImage" parameterType="ModelArticleImage" useGeneratedKeys="true" keyProperty="articleno" >
+        INSERT INTO 
+        TB_BBS_ArticleImage ( boardcd   , title   , content   , email   , hit, regdate, InsertUID   , InsertDT   , UpdateUID   , UpdateDT  ,uploadImageNo,fileName,fileSize,contentType,imageBytes,imageBase64  )
+            VALUES     ( #{boardcd}, #{title}, #{content}, #{email}, 0  , now()  , #{InsertUID}, #{InsertDT}, #{UpdateUID}, #{UpdateDT}, #{uploadImageNo}, #{fileName}, #{fileSize}, #{contentType},#{imageBytes},#{imageBase64}  )
+    </insert>   
 
  </mapper>

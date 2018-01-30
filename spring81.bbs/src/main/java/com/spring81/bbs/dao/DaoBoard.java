@@ -15,6 +15,7 @@ import org.springframework.stereotype.Repository;
 import com.mysql.jdbc.StringUtils;
 import com.spring81.bbs.inf.IBoard;
 import com.spring81.bbs.model.ModelArticle;
+import com.spring81.bbs.model.ModelArticleImage;
 import com.spring81.bbs.model.ModelAttachFile;
 import com.spring81.bbs.model.ModelBoard;
 import com.spring81.bbs.model.ModelComments;
@@ -210,5 +211,18 @@ public class DaoBoard implements IBoard {
     public List<ModelComments> getCommentList(int articleno) {
         return  session.selectList("mapper.mapperBoard.getCommentList", articleno);        
     }
+    
+    @Override
+    public ModelArticleImage getArticleImage(int articleImageno) {
+        return  session.selectOne("mapper.mapperBoard.getArticleImage", articleImageno);   
+    }
+
+    @Override
+    public int insertArticleImage(ModelArticleImage articleImage) {
+        session.insert("mapper.mapperBoard.insertArticleImage", articleImage );      
+        
+        return articleImage.getArticleno();
+    }
+  
     
 }

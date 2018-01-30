@@ -107,12 +107,12 @@
     </script>
     <script type="text/javascript">
        var goView=function(articleno){
-    	   location.href='/board/articleview/${boardcd}/'+articleno + location.search;
+    	   location.href='/board/articleimageview/${boardcd}/'+articleno + location.search;
        };
     </script>
     <script type="text/javascript">
      var goModify=function(event){
-    	 location.href='/board/articlemodify/${boardcd}/${articleno}';
+    	 location.href='/board/articleimagemodify/${boardcd}/${articleno}';
      };
      
      var goDelete= function(){
@@ -120,7 +120,7 @@
     	 //POST로 처리하는 방법 1.ajax 2.form 이용하는 방법
     	 var f =document.createElement('form');
     	 f.setAttribute('method','post');
-    	 f.setAttribute('action','/board/articledelete/${boardcd}/${articleno}');
+    	 f.setAttribute('action','/board/articleimagedelete/${boardcd}/${articleno}');
     	 f.setAttribute('enctype','application/x-www-form-urlencoded');
     	 
     	 document.body.appendChild(f);
@@ -130,14 +130,14 @@
      
      var goList=function(curPage,redirect){
     	 if(redirect==false)
-    		 location.href='/board/articleview/${boardcd}/${articleno}?curPage='+curPage;
+    		 location.href='/board/articleimageview/${boardcd}/${articleno}?curPage='+curPage;
     	 else
     		 
-    	     location.href='/board/articlelist/${boardcd}?curPage='+curPage;
+    	     location.href='/board/articleimagelist/${boardcd}?curPage='+curPage;
      };
      var goWrite=function(){
     	 
-    	 location.href='/board/articlewrite/${boardcd}';
+    	 location.href='/board/articleimagewrite/${boardcd}';
      };
      
      var download = function(filetemp,fileorig){
@@ -193,22 +193,22 @@
             <h1>${boardNm }</h1>
             <div id="bbs">
             	<table>
-            	<tr articleno="${article.articleno}" }><!-- 사용자가 임의로 추가한 속성 articleno -->
+            	<tr articleno="${articleimage.articleno}" }><!-- 사용자가 임의로 추가한 속성 articleno -->
             		<th style="width: 50px;">TITLE</th>
-            		<th style="text-align: left;color: #555;">${thisArticle.title }</th>
+            		<th style="text-align: left;color: #555;">${thisArticleImage.title }</th>
             		<th style="width: 50px;">DATE</th>
             		<th style="width: 130px;color: #555;"><fmt:formatDate pattern="yyyy-MM-dd" value="${thisArticle.regdate }" /></th>
             	</tr>	
             	</table>
             
             	<div id="gul-content">
-            		<h6>작성자 ${thisArticle.email }, 조회수 ${thisArticle.hit }</h6>
+            		<h6>작성자 ${thisArticleImgae.email }, 조회수 ${thisArticleImage.hit }</h6>
                     
                     <!-- img 태그의 src 경로는 byte 이미지 가져오는 컨트롤러 호출(/getImageByte) -->
-                      <img alt="" src="/resources/images/cap.jpg" />
+                      <img alt="" src="" />
                       <hr />
                       <img src="data:${contentType};base64,${imageBase64}" />
-            		<p>${thisArticle.content }</p>
+            		<p>${thisArticleImage.content }</p>
             		<p id="file-list" style="text-align: right;">
             			<c:forEach var="file" items="${attachFileList }" varStatus="status">
             			<a href="javascript:download( '${file.filenametemp }', '${file.filenameorig }' )">${file.filenameorig }</a>
@@ -276,11 +276,11 @@
                 	</tr>
                 	
                 	<!--  반복 구간 시작 -->
-                	<c:forEach var="article" items="${articleList }" varStatus="status">
+                	<c:forEach var="article" items="${articleImageList }" varStatus="status">
                 	<tr>
                 		<td style="text-align: center;">
                 			<c:choose>
-                				<c:when test="${articleno == article.articleno }">
+                				<c:when test="${articleno == articleimage.articleno }">
                 					<img src="/resources/images/arrow.gif" alt="현재글" />
                 				</c:when>
                 				<c:otherwise>
@@ -289,16 +289,16 @@
                 			</c:choose>
                 		</td>
                 		<td>
-                			<a href="javascript:goView(${article.articleno })">${article.title }</a>
-                			<c:if test="${article.attachFileNum > 0 }">
+                			<a href="javascript:goView(${articleimage.articleno })">${articleimage.title }</a>
+                			<c:if test="${articleimage.attachFileNum > 0 }">
                 				<img src="/resources/images/attach.png" alt="첨부파일" />
                 			</c:if>
-                			<c:if test="${article.commentNum > 0 }">
-                				<span class="bbs-strong">[${article.commentNum }]</span>
+                			<c:if test="${articleimage.commentNum > 0 }">
+                				<span class="bbs-strong">[${articleimage.commentNum }]</span>
                 			</c:if>
                 		</td>
-                		<td style="text-align: center;"><fmt:formatDate pattern="yyyy-MM-dd" value="${article.regdate }" /></td>
-                		<td style="text-align: center;">${article.hit }</td>
+                		<td style="text-align: center;"><fmt:formatDate pattern="yyyy-MM-dd" value="${articleimage.regdate }" /></td>
+                		<td style="text-align: center;">${articleimage.hit }</td>
                 	</tr>
                 	</c:forEach>
                 	<!--  반복 구간 끝 -->

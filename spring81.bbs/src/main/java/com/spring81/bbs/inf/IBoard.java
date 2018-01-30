@@ -3,6 +3,7 @@ package com.spring81.bbs.inf;
 import java.util.List;
 
 import com.spring81.bbs.model.ModelArticle;
+import com.spring81.bbs.model.ModelArticleImage;
 import com.spring81.bbs.model.ModelAttachFile;
 import com.spring81.bbs.model.ModelBoard;
 import com.spring81.bbs.model.ModelComments;
@@ -197,5 +198,9 @@ import com.spring81.bbs.model.ModelComments;
      * Comment테이블. 게시글에서 덧글삭제
      */
     public int deleteComment(ModelComments comment);
+   
+    //이미지 업로드 용
+    ModelArticleImage getArticleImage(int articleno);
+    int insertArticleImage(ModelArticleImage articleImage);
 
 }

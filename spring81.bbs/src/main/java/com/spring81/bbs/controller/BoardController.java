@@ -7,6 +7,7 @@ import java.text.DateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Base64;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -16,6 +17,10 @@ import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -32,6 +37,7 @@ import com.spring81.bbs.common.PagingHelper;
 import com.spring81.bbs.common.WebConstants;
 import com.spring81.bbs.inf.IServiceBoard;
 import com.spring81.bbs.model.ModelArticle;
+import com.spring81.bbs.model.ModelArticleImage;
 import com.spring81.bbs.model.ModelAttachFile;
 import com.spring81.bbs.model.ModelBoard;
 import com.spring81.bbs.model.ModelComments;
@@ -497,10 +503,227 @@ public class BoardController {
         return "board/articlelist";
         
     }
+	/////////////////////////////////////////////////////////////////////////
+	
+	@RequestMapping(value = "/board/articleimagelist/{boardcd}", method = RequestMethod.GET)
+    public String articleimagelist( Model model
+            ,@PathVariable String boardcd
+            ,@RequestParam(defaultValue="1") Integer curPage
+            ,@RequestParam(defaultValue="") String searchWord
+            ,HttpServletRequest request){
+        logger.info("articleimagelist:get");
+        
+        
+        //List <ModelArticle> result = srvboard.getArticleList(boardcd, searchWord);
+        
+        //boardnm,articlelist,no,pageLinks,curpage,nextLink,boardcd,searchword,url jsp에 넘김
+      
+        //paging처리
+        int totalRecord = srvboard.getArticleTotalRecord(boardcd, searchWord);
+        
+        PagingHelper paging = new PagingHelper(totalRecord,curPage);
+        
+        int start = paging.getStartRecord();
+        int end   = paging.getEndRecord();
+        
+        List<ModelArticle> result = srvboard.getArticleList(boardcd, searchWord, start, end);
+        
+        model.addAttribute("boardnm",srvboard.getBoardName(boardcd));
+        model.addAttribute("boardcd",boardcd);
+        model.addAttribute("searchWord",searchWord);
+        model.addAttribute("curPage",curPage);
+        
+        model.addAttribute("articleList",result);
+        model.addAttribute("no",paging.getListNo());
+        model.addAttribute("prevLink",paging.getPrevLink());
+        model.addAttribute("pageLinks",paging.getPageLinks());
+        model.addAttribute("nextLink",paging.getNextLink());
+        model.addAttribute("url",request.getRequestURI().toString());
+        
+      
+        return "/board/articleimagelist";
+        
+    }
+	
+	@RequestMapping(value = "/board/articleimagelist", method = RequestMethod.GET)
+    public String articleimagelist( Model model,@RequestParam(defaultValue="free") String boardcd){
+            
+        logger.info("/articleimagelist:get");
+        
+        return "redirect:/board/articleimagelist/"+boardcd;
+    }
 	
     
-	
-	//
+    @RequestMapping(value = "/board/articleimageview/{boardcd}/{articleno}", method = RequestMethod.GET)
+    public String articleimageeview( Model model
+            ,@PathVariable String boardcd
+            ,@PathVariable Integer articleno
+            ,@RequestParam(defaultValue="1") Integer curPage
+            ,@RequestParam(defaultValue="") String searchWord
+            ,HttpServletRequest request){
+            
+        logger.info("/articleimageeview:get");
         
+               
+        //articleno,boardcd,articleno
+        model.addAttribute("boardcd",boardcd      );
+        model.addAttribute("articleno",articleno  );
+        model.addAttribute("curPage",curPage      );
+        model.addAttribute("searchWord",searchWord);
+        
+        //boardnm 
+        
+        model.addAttribute("boardNm",srvboard.getBoardName(boardcd));
+        
+        //thisArticle
+        
+        //ModelArticle thisArticle =srvboard.transArticle(articleno);
+        //model.addAttribute("thisArticle",thisArticle);
+        
+        ModelArticleImage result =srvboard.getArticleImage(articleno);
+        model.addAttribute("thisArticle",result);
+        //byte[] imageContent = result.getImageBytes();
+        
+        
+        //attachFileList
+        List<ModelAttachFile> attachFileList=srvboard.getAttachFileList(articleno);
+        model.addAttribute("attachFileList",attachFileList);
+        
+        List<ModelComments> commentList=srvboard.getCommentList(articleno);
+        model.addAttribute("commentList",commentList);
+        
+        ModelArticle nextArticle = srvboard.getNextArticle(articleno, boardcd, searchWord);
+        model.addAttribute("nextArticle",nextArticle);
+        
+        ModelArticle prevArticle = srvboard.getPrevArticle(articleno, boardcd, searchWord);
+        model.addAttribute("prevArticle",prevArticle);
+        
+        
+        
+        //,articleno ,no, articlelist, prevpage,pageLinks,curpage,actionurl
+        
+        int totalRecord = srvboard.getArticleTotalRecord(boardcd, searchWord);
+        PagingHelper paging = new PagingHelper(totalRecord,curPage);
+        int start = paging.getStartRecord();
+        int end   = paging.getEndRecord();
+        
+        List<ModelArticle> articlelist = srvboard.getArticleList(boardcd, searchWord, start, end);
+        
+        model.addAttribute("articleList",articlelist);
+        model.addAttribute("no",paging.getListNo());
+        model.addAttribute("prevLink",paging.getPrevLink());
+        model.addAttribute("pageLinks",paging.getPageLinks());
+        model.addAttribute("nextLink",paging.getNextLink());
+        
+        String actionurl =request.getRequestURL().toString();
+        model.addAttribute("actionurl",actionurl);
+        
+        return "board/articleimageview";
+    }
+
+    @RequestMapping(value = "/board/articleimagewrite/{boardcd}", method = RequestMethod.GET)
+    public String articleimagewrite( Model model
+            ,@PathVariable String boardcd
+            ,@RequestParam(defaultValue="1") Integer curPage
+            ,@RequestParam(defaultValue="") String searchWord
+            ,HttpServletRequest request){
+            
+        logger.info("/articleimagewrite:get");
+        
+        //boardnm ,boardcd 
+        model.addAttribute("boardNm",srvboard.getBoardName(boardcd));
+        model.addAttribute("boardcd",boardcd);
+        
+        return "board/articleimagewrite";
+       
+    }
+    
+    @RequestMapping(value = "/board/articleimagewrite", method = RequestMethod.POST)
+    public String articleimagewrite( Model model
+            ,@ModelAttribute ModelArticleImage articleImage 
+            ,@RequestParam(defaultValue="upload") MultipartFile upload
+            ,@RequestParam(defaultValue="1") Integer curPage
+            ,@RequestParam(defaultValue="") String searchWord ){
+            
+        logger.info("/articlewrite:post");
+        
+        Integer articleno = null;
+        
+        try {
+            articleImage.setFileName(articleImage.getImage().getOriginalFilename());
+            articleImage.setFileSize((Long) articleImage.getImage().getSize());
+            articleImage.setContentType(articleImage.getImage().getContentType()); // 확장자
+            articleImage.setImageBytes(articleImage.getImage().getBytes());
+            articleImage.setImageBase64(Base64.getEncoder()
+                    .encodeToString(articleImage.getImage().getBytes()));
+            
+          //1.tb_bbs_artcle table insert. inserted pk 값을 반환 받는다.
+            articleno = srvboard.insertArticleImage(articleImage);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+      
+      // int insertedpk = srvboard.insertArticleImage(articleImage);
+      //2. client의 파일을 server로 upload
+       java.io.File uploadDir = new java.io.File (WebConstants.UPLOAD_PATH);
+        if(!uploadDir.exists())uploadDir.mkdirs();  
+             
+            // 클라이언트의 파일을 서버로 복사
+           String fileName = upload.getOriginalFilename();
+           String tempName = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
+           String newFile = WebConstants.UPLOAD_PATH+tempName;//c:/upload/20180707115415
+           java.io.File serverfile = new java.io.File(newFile);
+           
+           //실제로 파일 카피 발생.
+           try {
+            upload.transferTo(serverfile);
+        } catch (IllegalStateException e) {
+            logger.error("articlewrite"+e.getMessage());
+        } catch (IOException e) {
+            logger.error("/articlewrite:post"+e.getMessage());
+        }
+          if(serverfile.exists()) {
+         
+              ModelAttachFile attachfile = new ModelAttachFile();
+              attachfile.setArticleno(articleno);
+              attachfile.setFilenameorig(fileName);
+              attachfile.setFilenametemp(tempName);
+              attachfile.setFilesize((int) serverfile.length());
+              attachfile.setFiletype(upload.getContentType());
+              
+              int result =srvboard.insertAttachFile(attachfile);
+        
+              
+          }
+        
+      //3. tb_bbs_attachfile 테이블에 insert. ;
+        
+        String url = String.format("board/articleimageview/%s/%d",articleImage.getBoardcd(),articleno);
+        //return url;
+        return "redirect:/"+url;
+    }
+    
+    @RequestMapping(value = "/upload/imageupload", method = RequestMethod.POST)
+    public String imageupload(Model model, @RequestParam String upDir,
+            @ModelAttribute ModelArticleImage articleimage) {
+        logger.info("imageupload");
+        Integer articleno = null;
+        try {
+            articleimage.setFileName(articleimage.getImage().getOriginalFilename());
+            articleimage.setFileSize((Long) articleimage.getImage().getSize());
+            articleimage.setContentType(articleimage.getImage().getContentType()); // 확장자
+            articleimage.setImageBytes(articleimage.getImage().getBytes());
+            articleimage.setImageBase64(Base64.getEncoder()
+                    .encodeToString(articleimage.getImage().getBytes()));
+            articleno = srvboard.insertArticleImage(articleimage);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "redirect:/board/articleimageview/" + Integer.toString(articleno);
+    }
+    
+    
+    
+    
 	
 }

@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import com.spring81.bbs.inf.IBoard;
 import com.spring81.bbs.inf.IServiceBoard;
 import com.spring81.bbs.model.ModelArticle;
+import com.spring81.bbs.model.ModelArticleImage;
 import com.spring81.bbs.model.ModelAttachFile;
 import com.spring81.bbs.model.ModelBoard;
 import com.spring81.bbs.model.ModelComments;
@@ -412,4 +413,30 @@ public class ServiceBoard implements IServiceBoard {
        
         return result;
     }
+
+    @Override
+    public ModelArticleImage getArticleImage(int articleno) {
+        ModelArticleImage result = null;
+        try {
+                     //daoboard.increaseHit( articleno );
+            result = daoboard.getArticleImage(articleno) ;
+        } catch (Exception e) {
+            logger.error("getArticle  " + e.getMessage() );
+        }
+        
+        return result;
+    }
+
+    @Override
+    public int insertArticleImage(ModelArticleImage articleImage) {
+        int result = -1;
+        try {
+            result = daoboard.insertArticleImage(articleImage);
+        } catch (Exception e) {
+            logger.error("insertArticleImage " + e.getMessage() );
+        }
+        
+        return result;
+    }
+    
 }
